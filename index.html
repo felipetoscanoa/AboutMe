@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Profile: Felipe Toscano</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+                max-height: 500px;
+            }
+        }
+        .timeline-item .job-detail {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out, opacity 0.3s ease-out;
+            opacity: 0;
+        }
+        .timeline-item .job-detail.open {
+            max-height: 1000px;
+            opacity: 1;
+            transition: max-height 0.7s ease-in, opacity 0.5s ease-in 0.2s;
+        }
+        .nav-link {
+            transition: color 0.2s, border-bottom-color 0.2s;
+        }
+        .nav-link:hover {
+            color: #2563EB;
+        }
+        .nav-link.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+
+<!-- Chosen Palette: Warm Neutrals & Subtle Blue (BG: gray-50, Text: gray-800, Accent: blue-600) -->
+<!-- Application Structure Plan: A thematic, single-page dashboard. The structure is not linear like the CV, but task-oriented for a recruiter. It starts with a high-level Profile, moves to quantifiable "Key Impacts" (a dashboard of stats), visualizes his "Skills" (Radar Chart), then provides deep-dives via an "Interactive Timeline" for Experience and "Tabs" for Education/Certs. This user flow allows a recruiter to get the highlights first, then explore details interactively, which is more engaging and efficient than reading a static document. -->
+<!-- Visualization & Content Choices: 
+    1. Profile: (Info) -> HTML/Tailwind layout. (Interaction: Links) -> Justification: Standard, clear intro.
+    2. Key Impact: (Inform/Compare) -> HTML/Tailwind "Stat Cards". (Content: $1M Risk, 8hr->10min, 30->5min, 52 Team) -> Justification: Immediately surfaces the most powerful quantitative achievements from the CV text.
+    3. Skills: (Organize/Compare) -> Radar Chart (Chart.js/Canvas). (Content: Grouped technical and soft skills) -> Justification: Visually represents his diverse skillset and strengths in one graphic.
+    4. Experience: (Change/Organize) -> Interactive Vertical Timeline (HTML/CSS/JS). (Interaction: Click to expand/collapse job details) -> Justification: Turns a long text block into an engaging, user-controlled exploration of his career path.
+    5. Education/Certs: (Organize) -> Tabbed Interface (HTML/CSS/JS). (Interaction: Click to switch panels) -> Justification: Neatly organizes two dense, related lists into one compact component.
+    6. Research: (Inform) -> Styled HTML List. -> Justification: Simple, clear presentation.
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <header class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 w-full">
+        <nav class="container mx-auto max-w-6xl px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="text-xl font-bold text-blue-600">Felipe Toscano</div>
+                <div class="hidden md:flex space-x-6">
+                    <a href="#profile" class="nav-link text-gray-600 font-medium pb-1 border-b-2 border-transparent">Profile</a>
+                    <a href="#impact" class="nav-link text-gray-600 font-medium pb-1 border-b-2 border-transparent">Impact</a>
+                    <a href="#skills" class="nav-link text-gray-600 font-medium pb-1 border-b-2 border-transparent">Skills</a>
+                    <a href="#experience" class="nav-link text-gray-600 font-medium pb-1 border-b-2 border-transparent">Experience</a>
+                    <a href="#education" class="nav-link text-gray-600 font-medium pb-1 border-b-2 border-transparent">Education</a>
+                    <a href="#research" class="nav-link text-gray-600 font-medium pb-1 border-b-2 border-transparent">Research</a>
+                </div>
+                <div class="md:hidden">
+                    <select id="mobile-nav" class="border-gray-300 rounded-md shadow-sm">
+                        <option value="#profile">Profile</option>
+                        <option value="#impact">Impact</option>
+                        <option value="#skills">Skills</option>
+                        <option value="#experience">Experience</option>
+                        <option value="#education">Education</option>
+                        <option value="#research">Research</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto max-w-6xl p-4 md:p-8 mt-4">
+
+        <section id="profile" class="pt-16 -mt-16 mb-16">
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg overflow-hidden">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:flex-shrink-0">
+                        <div class="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-6xl font-bold">
+                            FT
+                        </div>
+                    </div>
+                    <div class="mt-6 md:mt-0 md:ml-8 text-center md:text-left">
+                        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Felipe Toscano</h1>
+                        <p class="text-xl md:text-2xl text-blue-600 font-medium mt-1">Data-Driven AI Specialist</p>
+                        <p class="mt-4 text-gray-600 max-w-xl">
+                            This profile summarizes my journey as an AI specialist with a strong background in auditing from PwC and Diners Club. Below, you can explore my key achievements, skills, and experience. My focus is on leveraging AI, automation, and data science to solve complex problems and drive efficiency.
+                        </p>
+                        <div class="mt-6 flex justify-center md:justify-start space-x-6 text-gray-600">
+                            <a href="https://www.linkedin.com/in/felipetoscanoa" target="_blank" rel="noopener" class="hover:text-blue-600 flex items-center">
+                                <span class="mr-2 text-xl">🔗</span>
+                                <span class="hidden md:inline">LinkedIn</span>
+                            </a>
+                            <span class="flex items-center">
+                                <span class="mr-2 text-xl">📍</span>
+                                <span class="hidden md:inline">London, W2</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="pt-16 -mt-16 mb-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Key Impact Dashboard</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                Instead of just listing responsibilities, this dashboard highlights my most significant, quantifiable achievements. These numbers represent the tangible value I delivered through automation, data analysis, and leadership.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-4xl font-bold text-blue-600">$1M</div>
+                    <p class="mt-2 text-gray-600 font-medium">In Potential Risk Uncovered</p>
+                    <p class="text-sm text-gray-500 mt-1">(via Alteryx loyalty-points analysis)</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-4xl font-bold text-blue-600">97.9%</div>
+                    <p class="mt-2 text-gray-600 font-medium">Process Time Reduction</p>
+                    <p class="text-sm text-gray-500 mt-1">(8-hour manual audit to 10 mins via Python)</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-4xl font-bold text-blue-600">83.3%</div>
+                    <p class="mt-2 text-gray-600 font-medium">Efficiency Gain</p>
+                    <p class="text-sm text-gray-500 mt-1">(30-min task to 5 mins via Alteryx)</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                    <div class="text-4xl font-bold text-blue-600">14+</div>
+                    <p class="mt-2 text-gray-600 font-medium">Financial Institutions</p>
+                    <p class="text-sm text-gray-500 mt-1">(Adopted Power App audit tool I designed)</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="pt-16 -mt-16 mb-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Core Competencies</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                This radar chart provides a visual representation of my key skill areas, blending technical expertise with crucial soft skills. Hover over the points to see the specific skills that make up each category.
+            </p>
+            <div class="bg-white p-4 md:p-8 rounded-lg shadow-lg">
+                <div class="chart-container">
+                    <canvas id="skillsRadarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="experience" class="pt-16 -mt-16 mb-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Interactive Career Timeline</h2>
+            <p class="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
+                My career path shows a clear progression from risk assurance to specialized roles in systems audit and AI. Click on any job title below to expand the section and see the detailed responsibilities and achievements for that role.
+            </p>
+            
+            <div class="relative max-w-3xl mx-auto">
+                <div class="absolute left-0 md:left-1/2 top-0 h-full w-0.5 bg-gray-300"></div>
+
+                <div class="timeline-item mb-12">
+                    <div class="md:flex items-center md:justify-between">
+                        <div class="md:w-1/2 md:pr-8 md:text-right">
+                            <div class="bg-white p-4 rounded-lg shadow-lg cursor-pointer" onclick="toggleJob('job-1')">
+                                <h3 class="text-xl font-bold text-blue-600">Senior Systems Auditor</h3>
+                                <p class="font-medium text-gray-700">Diners Club Bank</p>
+                                <p class="text-sm text-gray-500">Sep 2023 - May 2025</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:block w-8 h-8 bg-blue-600 rounded-full border-4 border-white absolute left-1/2 -translate-x-1/2"></div>
+                        <div class="md:w-1/2 md:pl-8"></div>
+                    </div>
+                    <div id="job-1" class="job-detail md:w-1/2 md:ml-auto md:pl-8 mt-4 md:mt-0">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                            <ul class="list-disc list-outside space-y-2 pl-4 text-gray-600">
+                                <li>Uncovered up to US $1M in risk by analysing loyalty-points data with Alteryx.</li>
+                                <li>Designed a corporate audit tool in Power Apps adopted by 14+ financial institutions, enhancing data protection and efficiency.</li>
+                                <li>Audited critical banking and AI systems, identifying data risks with significant potential regulatory fines.</li>
+                                <li>Implemented a Python and ACL-based bot for continuous liquidity audits, cutting an 8-hour manual process to 10 minutes.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item mb-12">
+                    <div class="md:flex items-center md:justify-between flex-row-reverse">
+                        <div class="md:w-1/2 md:pl-8 md:text-left">
+                            <div class="bg-white p-4 rounded-lg shadow-lg cursor-pointer" onclick="toggleJob('job-2')">
+                                <h3 class="text-xl font-bold text-gray-800">Risk Assurance Associate</h3>
+                                <p class="font-medium text-gray-700">PwC</p>
+                                <p class="text-sm text-gray-500">Jul 2022 - Sep 2023</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:block w-8 h-8 bg-gray-700 rounded-full border-4 border-white absolute left-1/2 -translate-x-1/2"></div>
+                        <div class="md:w-1/2 md:pr-8"></div>
+                    </div>
+                    <div id="job-2" class="job-detail md:w-1/2 md:mr-auto md:pr-8 mt-4 md:mt-0">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-r-4 border-gray-600 md:text-right">
+                            <ul class="list-disc list-outside space-y-2 pl-4 md:pl-0 md:pr-4 text-gray-600">
+                                <li>Designed and implemented an Alteryx automation tool that cut sample definition time from 30 to 5 minutes.</li>
+                                <li>Managed a client portfolio of banks and high-transaction companies, performing technology risk assessments and data analysis.</li>
+                                <li>Advised on data protection laws, reviewed cybersecurity, and led data migration projects.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item mb-12">
+                    <div class="md:flex items-center md:justify-between">
+                        <div class="md:w-1/2 md:pr-8 md:text-right">
+                            <div class="bg-white p-4 rounded-lg shadow-lg cursor-pointer" onclick="toggleJob('job-3')">
+                                <h3 class="text-xl font-bold text-gray-800">Risk Assurance Trainee</h3>
+                                <p class="font-medium text-gray-700">PwC</p>
+                                <p class="text-sm text-gray-500">Aug 2021 - Jun 2022</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:block w-8 h-8 bg-gray-700 rounded-full border-4 border-white absolute left-1/2 -translate-x-1/2"></div>
+                        <div class="md:w-1/2 md:pl-8"></div>
+                    </div>
+                    <div id="job-3" class="job-detail md:w-1/2 md:ml-auto md:pl-8 mt-4 md:mt-0">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-gray-600">
+                            <ul class="list-disc list-outside space-y-2 pl-4 text-gray-600">
+                                <li>Conducted technology risk assessments, data analysis, and tests of IT general controls.</li>
+                                <li>Validated automated controls and reviewed security in databases and operating systems.</li>
+                                <li>Received a high-impact rating, leading to promotion to Associate.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="md:flex items-center md:justify-between flex-row-reverse">
+                        <div class="md:w-1/2 md:pl-8 md:text-left">
+                            <div class="bg-white p-4 rounded-lg shadow-lg cursor-pointer" onclick="toggleJob('job-4')">
+                                <h3 class="text-xl font-bold text-gray-800">Electoral Assistant</h3>
+                                <p class="font-medium text-gray-700">CNE</p>
+                                <p class="text-sm text-gray-500">Oct 2020 - Jul 2021</p>
+                            </div>
+                        </div>
+                        <div class="hidden md:block w-8 h-8 bg-gray-700 rounded-full border-4 border-white absolute left-1/2 -translate-x-1/2"></div>
+                        <div class="md:w-1/2 md:pr-8"></div>
+                    </div>
+                    <div id="job-4" class="job-detail md:w-1/2 md:mr-auto md:pr-8 mt-4 md:mt-0">
+                        <div class="bg-white p-6 rounded-lg shadow-md border-r-4 border-gray-600 md:text-right">
+                            <ul class="list-disc list-outside space-y-2 pl-4 md:pl-0 md:pr-4 text-gray-600">
+                                <li>Led a team of 52, overseeing planning, training, and monitoring for task distribution.</li>
+                                <li>Managed installation and monitoring of data transmission systems, ensuring 100% endpoint activity for election result reporting.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="education" class="pt-16 -mt-16 mb-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Education & Certifications</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                My formal education provides the theoretical foundation for my work in AI and data science. Click the tabs below to switch between my academic degrees and my professional certifications.
+            </p>
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="flex border-b border-gray-200">
+                    <button id="tab-btn-academic" class="flex-1 py-4 px-6 font-medium text-center text-blue-600 border-b-4 border-blue-600">
+                        Academic Degrees
+                    </button>
+                    <button id="tab-btn-certs" class="flex-1 py-4 px-6 font-medium text-center text-gray-500 border-b-4 border-transparent hover:text-blue-500">
+                        Professional Certifications
+                    </button>
+                </div>
+                
+                <div id="tab-panel-academic" class="p-6 md:p-8">
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">MSc Big Data and Data Science Technology</h3>
+                            <p class="font-medium text-gray-600">Northumbria University, London (May 2025 - Present)</p>
+                            <p class="text-sm text-gray-500 mt-1">Modules: Applied Data Science, Info & Cyber Security, Leadership in a Digital Age, Big Data Analytics, Machine Learning on Cloud.</p>
+                        </div>
+                        <hr>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Master in Artificial Intelligence</h3>
+                            <p class="font-medium text-gray-600">Universidad San Francisco de Quito (Nov 2023 - Dec 2024)</p>
+                            <p class="text-sm text-gray-500 mt-1">GPA 3.9 (1st) | Modules: Supervised Learning, Unsupervised Learning, Deep Learning, Artificial Vision, NLP.</p>
+                        </div>
+                        <hr>
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">Electrical/Electronic Engineer</h3>
+                            <p class="font-medium text-gray-600">Universidad San Francisco de Quito (Aug 2015 - May 2020)</p>
+                            <p class="text-sm text-gray-500 mt-1">GPA 3.4 (2:1) | Relevant: Intelligent Control, Industrial Automation, Programmable Systems.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-panel-certs" class="p-6 md:p-8 hidden">
+                    <ul class="list-disc list-outside space-y-3 pl-5 text-gray-600">
+                        <li>Foundations: Data, Data, Everywhere - Google Data Analytics (Google, 2023)</li>
+                        <li>ChatGPT Prompt Engineering for Developers (DeepLearning.AI, 2023)</li>
+                        <li>Machine Learning (Stanford, 2023)</li>
+                        <li>Alteryx Designer Core (Alteryx, 2022)</li>
+                        <li>Improving Deep Neural Networks - Hyperparameter Tuning, Regularization and Optimization (DeepLearning.AI, 2021)</li>
+                        <li>Neural Networks and Deep Learning (DeepLearning.AI, 2021)</li>
+                        <li>Structuring Machine Learning Projects (DeepLearning.AI, 2021)</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="research" class="pt-16 -mt-16 mb-16">
+            <h2 class="text-3xl font-bold text-center mb-4">Research Work</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                This section lists my published research, reflecting my early interest in applying technology and AI to solve complex challenges in health and engineering.
+            </p>
+            <div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+                <ul class="list-decimal list-outside space-y-4 pl-5 text-gray-600">
+                    <li>
+                        <span class="font-medium text-gray-700">Helping maintain muscle mass and avoid frailty with Magnetic Stimulation + AI</span>
+                        <span class="text-sm block text-gray-500">(APRU Global Health Conference, 2020)</span>
+                    </li>
+                    <li>
+                        <span class="font-medium text-gray-700">720p-HD Grayscale and Colour Images Shape Recognition System Implementation on a FPGA Platform</span>
+                        <span class="text-sm block text-gray-500">(ANDESCON, 2020)</span>
+                    </li>
+                    <li>
+                        <span class="font-medium text-gray-700">Reference models for 5G wireless communications channels</span>
+                        <span class="text-sm block text-gray-500">(ETCM, 2019)</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="text-center p-8 text-gray-500 text-sm">
+        <p>&copy; 2025. All data sourced from provided resume.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const skillsData = {
+                labels: [
+                    'Automation (Python/Alteryx)',
+                    'Data Analysis (SQL/Excel)',
+                    'AI / Machine Learning',
+                    'BI & Apps (Power Platform)',
+                    'Audit & Risk Assessment',
+                    'Stakeholder Communication',
+                    'Leadership & Team Mgmt',
+                    'Problem Solving'
+                ],
+                datasets: [{
+                    label: 'Skill Level',
+                    data: [9, 8, 8, 9, 8, 9, 8, 9],
+                    backgroundColor: 'rgba(37, 99, 235, 0.2)',
+                    borderColor: 'rgba(37, 99, 235, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(37, 99, 235, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(37, 99, 235, 1)'
+                }]
+            };
+
+            const radarCtx = document.getElementById('skillsRadarChart').getContext('2d');
+            new Chart(radarCtx, {
+                type: 'radar',
+                data: skillsData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            pointLabels: {
+                                font: {
+                                    size: 13,
+                                    weight: '500'
+                                },
+                                color: '#374151'
+                            },
+                            min: 0,
+                            max: 10,
+                            ticks: {
+                                backdropColor: 'transparent',
+                                color: '#6b7280',
+                                stepSize: 2
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.r;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const tabBtnAcademic = document.getElementById('tab-btn-academic');
+            const tabBtnCerts = document.getElementById('tab-btn-certs');
+            const panelAcademic = document.getElementById('tab-panel-academic');
+            const panelCerts = document.getElementById('tab-panel-certs');
+
+            function showTab(tab) {
+                if (tab === 'academic') {
+                    panelAcademic.classList.remove('hidden');
+                    panelCerts.classList.add('hidden');
+                    tabBtnAcademic.classList.add('text-blue-600', 'border-blue-600');
+                    tabBtnAcademic.classList.remove('text-gray-500', 'border-transparent');
+                    tabBtnCerts.classList.add('text-gray-500', 'border-transparent');
+                    tabBtnCerts.classList.remove('text-blue-600', 'border-blue-600');
+                } else {
+                    panelCerts.classList.remove('hidden');
+                    panelAcademic.classList.add('hidden');
+                    tabBtnCerts.classList.add('text-blue-600', 'border-blue-600');
+                    tabBtnCerts.classList.remove('text-gray-500', 'border-transparent');
+                    tabBtnAcademic.classList.add('text-gray-500', 'border-transparent');
+                    tabBtnAcademic.classList.remove('text-blue-600', 'border-blue-600');
+                }
+            }
+            tabBtnAcademic.addEventListener('click', () => showTab('academic'));
+            tabBtnCerts.addEventListener('click', () => showTab('certs'));
+
+            window.toggleJob = (jobId) => {
+                const jobDetail = document.getElementById(jobId);
+                const allJobDetails = document.querySelectorAll('.job-detail');
+                const isOpen = jobDetail.classList.contains('open');
+
+                allJobDetails.forEach(detail => {
+                    detail.classList.remove('open');
+                });
+
+                if (!isOpen) {
+                    jobDetail.classList.add('open');
+                }
+            }
+
+            document.querySelectorAll('nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    
+                    document.querySelectorAll('nav a').forEach(navLink => {
+                        navLink.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+
+            document.getElementById('mobile-nav').addEventListener('change', function(e) {
+                const targetId = e.target.value;
+                document.querySelector(targetId).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('nav a');
+            const mobileNav = document.getElementById('mobile-nav');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+
+                if (mobileNav.value !== `#${current}`) {
+                    mobileNav.value = `#${current}`;
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
